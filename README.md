@@ -1,116 +1,72 @@
+# Lumen AI Validators Manager
 
-# LUMEN: AI-Powered Solana Validator Manager
+### Automatically bootstrap a Solana validator node, optimize its performance, and connect the node to a monitoring dashboard
 
-### Automatically bootstrap, optimize, and monitor your Solana validator node with AI-driven efficiency
+[Solana](https://solana.com/) is a fast, secure, and censorship-resistant blockchain providing open infrastructure necessary for global adoption.
 
-LUMEN is an enhanced AI-powered validator management framework built on the foundation of the open-source SV-Manager project. Combining Solana's speed and scalability with AI automation, LUMEN optimizes validator operations, maximizes staking rewards, and ensures robust participation in the Solana network.
+In order to run, the Solana blockchain requires a decentralized network comprising computing resources to validate transactions as well as storage for ledger redundancy.
 
----
+The computer resources are provided by validators who need to maintain high-performance Linux nodes.
 
-## Key Features of LUMEN
+There are now two Solana clusters, [Mainnet-Beta](https://explorer.solana.com/)  and [Testnet](https://explorer.solana.com/?cluster=testnet).
 
-### **AI-Driven Validator Optimization**
-- Monitors and optimizes validator performance in real-time.
-- Automatically adjusts configurations based on network conditions for maximum uptime and performance.
-- Predicts load and reallocates resources to prevent slashing or missed rewards.
+The Mainnet-Beta cluster is maintained by ~700 validators, and the Testnet cluster by ~1700 more validators.
 
-### **Automated Stake Management**
-- Delegates and re-delegates SOL to maximize rewards.
-- Balances staking distribution to promote network decentralization.
-- Provides staking analytics to identify underperforming validators and recommend reallocations.
+Most of the people running these just bootstrap their nodes manually, referring to the Solana docs or similar community guides. Apparently, there are no 2 identical setups across these 2400 validators.
 
-### **Dynamic Fee Adjustment**
-- Uses AI to adjust validator commission fees dynamically based on market trends and competitor analysis.
-- Ensures competitive positioning while maximizing validator earnings.
+As a result, it is virtually impossible to support validators having issues with their nodes and/or help them improve their node, thus contributing to the overall cluster performance.
 
-### **Real-Time Monitoring and Alerts**
-- Comprehensive dashboard to track validator health, performance, and rewards.
-- Sends real-time alerts for issues like downtime, missed slots, or penalty risks.
+What we would like to do is provide a toolkit to help validators bootstrap and maintain their nodes in a uniform, consistent way.
 
-### **Energy Efficiency and Sustainability**
-- Measures and optimizes validator energy usage.
-- Rewards validators using renewable energy sources to promote green operations.
+The Ansible scripts we have created for this purpose are a compilation of best practices and community guidelines.
 
-### **Validator Reputation Scoring**
-- Assigns reputation scores based on performance, uptime, and community feedback.
-- Encourages transparency and trust within the Solana ecosystem.
+Please use them, enjoy them, and improve them.
 
-### **Governance Integration**
-- Facilitates participation in governance votes directly through the platform.
-- Provides AI-generated insights on proposals for informed decision-making.
+### Quick Install
 
-### **Cross-Validator Collaboration**
-- Enables validators to form groups and share resources, such as redundancy setups and backup nodes, using smart contracts for trustless collaboration.
+* Log in to your server
+* Create the key pair file (you can also upload it via scp if you prefer):
+  ````shell
+  nano ~/validator-keypair.json
+  ````   
+  Paste your key pair, save the file (ctrl-O) and exit (ctrl-X).
 
----
 
-## Quick Install
-
-1. **Log in to your server**
-2. **Create the key pair file (or upload it via SCP):**
-   ```shell
-   nano ~/validator-keypair.json
-   ```
-   Paste your key pair, save the file (ctrl-O), and exit (ctrl-X).
-
-3. **If you have a vote account key pair, create the key pair file:**
-   ```shell
+  If you have a *vote account* key pair, create the key pair file (or upload it via scp):
+  ````shell
    nano ~/vote-account-keypair.json
-   ```
-   Paste your key pair, save the file, and exit.
+  ````  
+  Paste your key pair, save the file (ctrl-O) and exit (ctrl-X).
+* Run this command…
 
-4. **Run the installation script:**
-   ```shell
-   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/mfactory-lab/lumen/latest/install/install_validator.sh)"
-   ```
+````shell
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/mfactory-lab/lumen/latest/install/install_validator.sh)"
+````
+  <img src="docs/launch.gif" width=500>
+…and follow the wizard’s instructions (__enter your own Node name!__):
 
-5. **Follow the wizard's instructions and enter your Node name:**
+  <img src="docs/wizard.gif" width=500>
 
-   ![Wizard Example](docs/wizard.gif)
+That's it, you are all set!
 
-That’s it! Your validator node is set up and ready to contribute to the Solana network.
+### How to update validator
 
----
-
-## How to Update Validator
-
-To update your validator to the latest Solana version:
-```shell
+````shell
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/mfactory-lab/lumen/latest/install/update_test_validator_version.sh)" --version 1.14.2
-```
+````
 
----
+### how to update monitoring
 
-## How to Update Monitoring
+````shell
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/mfactory-lab/lumen/latest/install/update_monitoring.sh)" 
+````
 
-To update the monitoring system:
-```shell
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/mfactory-lab/lumen/latest/install/update_monitoring.sh)"
-```
 
----
+### If you want more control over the configuration of your node, please refer to the [advanced technical specifications](docs/advanced.md)
 
-## Advanced Features
 
-For detailed technical specifications and advanced configurations, please refer to the [advanced documentation](docs/advanced.md).
+## Useful links
 
----
-
-## Utility of the $LUMEN Token
-
-- **Access to Advanced Features:** Premium AI-powered optimization tools.
-- **Staking Rewards Pool:** Stake $LUMEN for rewards, similar to SOL staking.
-- **Governance and Upgrades:** Vote on protocol upgrades and feature additions.
-- **Performance Incentives:** High-performing validators earn additional $LUMEN rewards.
-
----
-
-## Useful Links
-
-- [Solana](https://solana.com/)
-- [Monitoring Dashboard](https://solana.thevalidators.io/)
-- [Validator Docs](https://docs.solana.com/running-validator)
-
----
-
-LUMEN redefines validator management by merging AI intelligence with Solana’s high-performance blockchain. By simplifying operations and boosting rewards, LUMEN empowers validators to thrive in the Solana ecosystem while contributing to its long-term decentralization and growth.
+* [Solana](https://solana.com/)
+* [Monitoring Dashboard](https://solana.thevalidators.io/)
+* [Validator docs](https://docs.solana.com/running-validator)
