@@ -1,0 +1,53 @@
+---
+- name: Configure lvm
+  import_tasks: lvm.yaml
+  when: lvm_enabled|bool
+  tags:
+    config.lvm
+
+- name: Install additional packages
+  import_tasks: packages.yaml
+  tags:
+    - config.packages
+
+- name: Create swap
+  import_tasks: swap.yaml
+  tags:
+    - config.swap
+  when: swap_file_size_gb | int  > 0
+
+- name: Create ramdisk
+  import_tasks: ramdisk.yaml
+  tags:
+    - config.ramdisk
+  when: ramdisk_size_gb | int > 0
+
+- name: Config cpu governor
+  import_tasks: cpu_governor.yaml
+  tags:
+    - config.cpu
+
+- name: Config firewall
+  import_tasks: firewall.yaml
+  tags:
+    - config.firewall
+  when:
+    use_firewall | bool
+
+- name: Config file2ban
+  import_tasks: fail2ban.yaml
+  tags:
+    - config.fail2ban
+
+- name: Create ansible user
+  import_tasks: ansible_user.yaml
+  tags:
+    - config.ansible_user
+  when:
+    - "'local' not in group_names"
+
+- name: Create solana user
+  import_tasks: solana_user.yaml
+  tags:
+    - config.solana_user
+    - validator.service.solana

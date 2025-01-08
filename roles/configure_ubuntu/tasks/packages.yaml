@@ -1,0 +1,26 @@
+---
+
+- name: packages | ensure apt list dir exists
+  file:
+    path: /var/lib/apt/lists/
+    state: directory
+    mode: 0755
+
+- name: Update apt cache
+  become: yes
+  apt:
+    update_cache: yes
+
+- name: Install additional packages
+  become: yes
+  apt:
+    pkg:
+      - gpg
+      - gpg-agent
+      - python3
+      - python3-pip
+      - python3-venv
+      - ufw
+      - rsyslog
+  tags:
+    - config.packages

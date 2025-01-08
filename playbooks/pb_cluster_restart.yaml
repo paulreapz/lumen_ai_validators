@@ -1,0 +1,7 @@
+---
+
+- name: restart cluster
+  hosts: "{{ host_hosts | default('remote') }}"
+  become: yes
+  roles:
+    - restart_cluster

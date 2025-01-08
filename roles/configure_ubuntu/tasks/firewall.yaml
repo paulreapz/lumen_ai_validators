@@ -1,0 +1,72 @@
+---
+- name: Install firewall package
+  package:
+    name:
+      - ufw
+    state: present
+  tags:
+    - config.firewall
+
+- name: Deny all ingress connections
+  ufw:
+    policy: deny
+    direction: incoming
+  tags:
+    - config.firewall
+
+- name: allow ingress ssh
+  ufw:
+    rule: allow
+    port: ssh
+    proto: tcp
+    direction: in
+  tags:
+    - config.firewall
+
+- name: allow rpc ingress port
+  ufw:
+    rule: allow
+    proto: tcp
+    direction: in
+    port: '{{ solana_rpc_port }}'
+  tags:
+    - config.firewall
+
+- name: allow ingress solana udp ports
+  ufw:
+    rule: allow
+    proto: udp
+    direction: in
+    port: '{{ open_solana_ports_start }}:{{ open_solana_ports_end }}'
+  tags:
+    - config.firewall
+
+- name: allow ingress solana tcp ports
+  ufw:
+    rule: allow
+    proto: tcp
+    direction: in
+    port: '{{ open_solana_ports_start }}:{{ open_solana_ports_end }}'
+  tags:
+    - config.firewall
+
+- name: deny out from any to 10.0.0.0/8
+  ufw:
+    rule: deny
+    direction: out
+    src: '{{ item }}'
+  loop:
+    - 10.0.0.0/8
+    - 172.16.0.0/12
+    - 192.168.0.0/16
+    - 100.64.0.0/10
+    - 198.18.0.0/15
+    - 169.254.0.0/16
+  tags:
+    - config.firewall
+
+- name: Enable ufw
+  ufw:
+    state: enabled
+  tags:
+    - config.firewall

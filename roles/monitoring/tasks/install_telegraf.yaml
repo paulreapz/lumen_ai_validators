@@ -1,0 +1,40 @@
+---
+
+- name: Adde influx repo key on Ubuntu
+  apt_key:
+    url: https://repos.influxdata.com/influxdata-archive_compat.key
+    state: present
+  when: ansible_distribution == 'Ubuntu'
+  tags:
+    - telegraf.install
+
+- name: Add telegraf repo
+  block:
+    - name: Add {{ ansible_distribution_release | lower }} telegraf repo
+      apt_repository:
+        repo: deb https://repos.influxdata.com/{{ ansible_distribution | lower }} {{ ansible_distribution_release | lower }} stable
+        state: present
+        filename: influxdb
+  rescue:
+    - name: ansible_distribution_release repo failed, adding bionic telegraf repo
+      apt_repository:
+        repo: deb https://repos.influxdata.com/{{ ansible_distribution | lower }} bionic stable
+        state: present
+        filename: influxdb
+  when: ansible_distribution == 'Ubuntu'
+  tags:
+    - telegraf.install
+
+- name: apt update
+  ansible.builtin.apt:
+    update_cache: yes
+  when: ansible_distribution == 'Ubuntu'
+  tags:
+    - telegraf.install
+
+- name: Install telegraf
+  package:
+    name: telegraf
+    state: present
+  tags:
+    - telegraf.install

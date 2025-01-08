@@ -1,0 +1,72 @@
+[agent]
+  hostname = "{{ validator_name }}" # set this to a name you want to identify your node in the grafana dashboard
+  flush_interval = "30s"
+  interval = "30s"
+#  collection_jitter = "10s"
+  flush_jitter = "10s"
+  metric_buffer_limit = 10000
+  metric_batch_size = 10000
+
+
+[[inputs.exec]]
+  commands = [
+               "sudo -i -u {{ solana_user }} {{ solana_home }}/monitoring/output_starter.sh output_validators"
+             ]
+  interval = "30s"
+  timeout = "30s"
+  json_name_key = "measurement"
+  json_time_key = "time"
+  tag_keys = ["tags_cluster_environment",
+              "tags_fields_identityPubkey",
+              "tags_fields_voteAccountPubkey"]
+
+  json_string_fields = ["solana_version",
+                        "monitoring_version",
+                        "data_version",
+                        "delinquent"]
+
+  json_time_format = "unix_ms"
+
+[[inputs.exec]]
+  commands = [
+               "sudo -i -u {{ solana_user }} {{ solana_home }}/monitoring/output_starter.sh output_gossip"
+             ]
+  interval = "3600s"
+  timeout = "3600s"
+  json_name_key = "measurement"
+  json_time_key = "time"
+  tag_keys = ["fields_identityPubkey", "cluster_environment"]
+
+  json_string_fields = ["solana_version",
+                        "monitoring_version",
+                        "data_version",
+                        "data_ipAddress"]
+
+  json_time_format = "unix_ms"
+
+
+[[inputs.exec]]
+  commands = [
+               "sudo -i -u {{ solana_user }} {{ solana_home }}/monitoring/output_starter.sh output_validators_info"
+             ]
+  interval = "120s"
+  timeout = "120s"
+  json_name_key = "measurement"
+  json_time_key = "time"
+  tag_keys = ["data_identityPubkey", "cluster_environment"]
+
+  json_string_fields = ["monitoring_version",
+                        "data_infoPubkey",
+                        "data_ipAddress",
+                        "data_info_details",
+                        "data_info_keybaseUsername",
+                        "data_info_name",
+                        "data_info_website"]
+
+  json_time_format = "unix_ms"
+
+##OUPUTS TimeScale
+[[outputs.postgresql]]
+connection = "host={{ ts_host }} user=tsdbadmin password={{ ts_password }} sslmode=require dbname={{ ts_dbname }}"
+table_template="CREATE TABLE IF NOT EXISTS {TABLE}({COLUMNS}); SELECT create_hypertable({TABLELITERAL},'time',chunk_time_interval := INTERVAL '1 day',if_not_exists := true);"
+

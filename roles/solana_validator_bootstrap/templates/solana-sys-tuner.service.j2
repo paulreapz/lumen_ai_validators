@@ -1,0 +1,14 @@
+[Unit]
+Description=Solana System Tuner Service
+After=network.target syslog.target
+
+[Service]
+Type=oneshot
+{% for param in sysctl_params %}
+ExecStart=/usr/sbin/sysctl -w {{ param }}
+{% endfor %}
+
+
+
+[Install]
+WantedBy=multi-user.target

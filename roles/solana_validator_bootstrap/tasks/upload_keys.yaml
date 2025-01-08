@@ -1,0 +1,60 @@
+---
+- name: "Upload keys: Build flat keys path"
+  set_fact:
+    secrets_local_path: "{{ local_secrets_path }}"
+  when: flat_path|bool
+
+- name: "Upload keys: Build non flat keys path"
+  set_fact:
+    secrets_local_path: "{{ local_secrets_path }}/{{ validator_name }}/solana"
+  when: not flat_path|bool
+
+- name: "Upload keys: Check validator-keypair exists locally"
+  stat:
+    path: "{{ secrets_local_path }}/validator-keypair.json"
+  connection: local
+  become: no
+  delegate_to: localhost
+  register: validator_keypair_exists
+  tags:
+    - validator.manage.keys.create.vote
+  when: not fail_if_no_validator_keypair
+
+- name: "Upload keys: upload validator-keypair"
+  copy:
+    src: "{{ secrets_local_path }}/validator-keypair.json"
+    dest: "{{ secrets_path }}"
+    mode: 0400
+    owner: "{{ solana_user }}"
+    group: "{{ solana_user }}"
+    force: false
+  tags:
+    - validator.manage.keys.upload
+  when: fail_if_no_validator_keypair
+     or validator_keypair_exists.stat.exists
+
+- name: "Upload keys: Check vote account keypair exists locally"
+  stat:
+    path: "{{ secrets_local_path }}/vote-account-keypair.json"
+  connection: local
+  become: no
+  delegate_to: localhost
+  register: vote_account_keypair_exists
+  tags:
+    - validator.manage.keys.create.vote
+  when: not fail_if_no_validator_keypair
+
+- name: "Upload keys: upload vote-account-keypair"
+  copy:
+    src: "{{ secrets_local_path }}/vote-account-keypair.json"
+    dest: "{{ secrets_path }}"
+    mode: 0400
+    owner: "{{ solana_user }}"
+    group: "{{ solana_user }}"
+    force: false
+  tags:
+    - validator.manage.keys.upload
+  when:
+    fail_if_no_validator_keypair
+    or vote_account_keypair_exists.stat.exists
+

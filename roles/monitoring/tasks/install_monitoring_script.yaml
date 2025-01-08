@@ -1,0 +1,106 @@
+---
+- name: Delete script folder
+  file:
+    path: "{{ solana_home }}/monitoring"
+    state: absent
+  tags:
+    monitoring.script     
+
+- name: Create script folder
+  file:
+    path: "{{ solana_home }}/monitoring"
+    owner: "{{ solana_user }}"
+    group: "{{ solana_user }}"
+    mode: 0755
+    state: directory
+  tags:
+    monitoring.script
+
+- name: Install python packages
+  pip:
+    name:
+      - requests
+      - numpy
+    state: present
+    virtualenv: "{{ solana_home }}/monitoring"
+  #  executable: pip3
+  tags:
+    monitoring.script
+
+- name: ensure secrets_path exists
+  stat:
+    path: "{{ secrets_path }}"
+  register: secrets_path_exists
+  tags:
+    monitoring.script
+
+- name: create secrets_path
+  file:
+    path: "{{ secrets_path }}"
+    state: directory
+    mode: 0755
+    owner: "{{ solana_user }}"
+    group: "{{ solana_user }}"
+  when: not secrets_path_exists.stat.exists
+  tags:
+    monitoring.script
+
+- name: copy keys
+  copy:
+    src: "{{ local_secrets_path }}/{{ item }}"
+    dest: "{{ secrets_path }}"
+    mode: 0400
+    owner: "{{ solana_user }}"
+    group: "{{ solana_user }}"
+    force: false
+  with_items:
+    - "validator-keypair.json"
+    - "vote-account-keypair.json"
+  when: not secrets_path_exists.stat.exists
+  tags:
+    monitoring.script
+
+- name: Upload monitoring library
+  copy:
+    src: "files/{{ item }}"
+    dest: "{{ solana_home }}/monitoring/{{ item }}"
+    owner: "{{ solana_user }}"
+    group: "{{ solana_user }}"
+    mode: 0644
+  with_items:
+    - "cluster_monitoring_library.py"
+    - "common.py"
+    - "measurement_validator_info.py"
+    - "output_gossip.py"
+    - "output_validator_measurements.py"
+    - "output_validators_info.py"
+    - "output_validators.py"
+    - "request_utils.py"
+    - "solana_rpc.py"
+    - "validator_monitoring.py"
+  tags:
+    - monitoring.script
+    - monitoring.script.library
+
+
+- name: Upload monitoring script starter
+  template:
+    src: output_starter.sh.j2
+    dest: "{{ solana_home }}/monitoring/output_starter.sh"
+    owner: "{{ solana_user }}"
+    group: "{{ solana_user }}"
+    mode: 0755
+  tags:
+    - monitoring.script
+
+
+- name: Upload config script
+  template:
+    src: monitoring_config.py.j2
+    dest: "{{ solana_home }}/monitoring/monitoring_config.py"
+    owner: "{{ solana_user }}"
+    group: "{{ solana_user }}"
+    mode: 0644
+  tags:
+    - monitoring.script
+

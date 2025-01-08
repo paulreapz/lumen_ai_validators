@@ -1,0 +1,35 @@
+---
+- name: install solana validator
+  hosts: all
+  become: yes
+  
+  # vars_prompt:
+  #   - name: validator_key_path
+  #     prompt: Where are your keys?
+  #     private: no
+  #   - name: validator_name
+  #     prompt: What is your validator name?
+  #     private: no
+  #   - name: lvm_enabled
+  #     prompt: LVM enabled (Yes/No)?
+  #     default: No
+  #     private: no
+
+  tasks:
+    # - name: debug variables
+    #   debug:
+    #     var: "{{ item }}"
+    #   with_items:
+    #    - secrets_path
+    #    - ansible_user
+#       - accounts_path
+ #      - cluster_environment
+      #  - name
+      #  - entrypoint
+      #  - ledger_path
+    - name: show name
+      debug:
+        msg: "{{ hostvars[inventory_hostname].cluster_environment }}"
+    - name: show cpu
+      debug:
+        msg: "{{ group_names }}"

@@ -1,0 +1,23 @@
+---
+set_validator_info: False
+cluster_environment: 'testnet'
+cluster_rpc_address: 'https://api.testnet.solana.com'
+solana_validator_service: started
+entrypoints:
+  - entrypoint.testnet.solana.com:8001
+  - entrypoint2.testnet.solana.com:8001
+  - entrypoint3.testnet.solana.com:8001
+known_validators:
+  - 5D1fNXzvv5NjV1ysLjirC4WY92RNsVH18vjmcszZd8on
+  - dDzy5SR3AXdYWVqbDEkVFdvSPCtS9ihF5kJkHCtXoFs
+  - Ft5fbkqNa76vnsjYNwjDZUXoTWpP7VYm3mtsaQckQADN
+  - eoKpUABi59aT4rR9HGS3LcMecfut9x7zJyodWWP43YQ
+  - 9QxCLckBiJc783jnMvXZubK4wH86Eqqvashtrwvcsgkv
+solana_metrics_url: 'https://metrics.solana.com:8086,db=tds,u=testnet_write,p=c4fa841aa918bf8274e3e2a44d77568d9861b3ea'
+expected_genesis_hash: '4uhcVJyU9pJkvQyS88uRDiswHXSCkY3zQawwpjk2NsNY'
+limit_ledger_size: 50000000
+maximum_local_snapshot_age: 1000
+solana_version: 1.18.17
+jito_version: 1.18.17
+agave_version: 2.0.3 
+extra_params:

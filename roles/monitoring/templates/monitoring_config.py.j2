@@ -1,0 +1,10 @@
+from common import ValidatorConfig
+
+config = ValidatorConfig(
+    validator_name="{{ validator_name }}",
+    secrets_path="{{ secrets_path }}",
+    local_rpc_address="http://localhost:8899",
+    remote_rpc_address="{{ cluster_rpc_address }}",
+    cluster_environment="{{ cluster_environment }}",
+    debug_mode=False
+)

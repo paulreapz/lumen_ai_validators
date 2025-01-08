@@ -1,0 +1,23 @@
+---
+
+- name: wait for restarting window
+  become: yes
+  become_user: "{{ solana_user }}"
+  shell: solana-validator --ledger {{ ledger_path }} wait-for-restart-window --max-delinquent-stake {{ max_delinquent_stake }}
+  environment:
+    PATH: "{{ env_path }}"
+  ignore_errors: True
+  when: wait_for_window and agave is not defined
+  tags:
+    - validator.manage.restart.wait
+
+- name: wait for restarting window
+  become: yes
+  become_user: "{{ solana_user }}"
+  shell: agave-validator --ledger {{ ledger_path }} wait-for-restart-window --max-delinquent-stake {{ max_delinquent_stake }}
+  environment:
+    PATH: "{{ env_path }}"
+  ignore_errors: True
+  when: wait_for_window and agave is defined and agave
+  tags:
+    - validator.manage.restart.wait

@@ -1,0 +1,44 @@
+[Unit]
+Description=Solana {{ cluster_environment }} node
+After=network.target syslog.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User={{ solana_user }}
+LimitNOFILE=1024000
+Environment="PATH=/bin:/usr/bin:{{ env_path }}"
+Environment="SOLANA_METRICS_CONFIG=host=https://metrics.solana.com:8086,db=tds,u=testnet_write,p=c4fa841aa918bf8274e3e2a44d77568d9861b3ea"
+Environment="RUST_LOG={{ log_level }}"
+ExecStart={{ env_path }}/solana-validator \
+--identity {{ secrets_path }}/validator-keypair.json \
+--vote-account {{ secrets_path }}/vote-account-keypair.json \
+--rpc-port {{ solana_rpc_port }} \
+--wait-for-supermajority 95038710 \
+--no-snapshot-fetch \
+--no-genesis-fetch \
+--expected-bank-hash E3MJucWkWkugqJ8ewHAkDWuCN6uDxEychwjFFCwJ16ic  \
+--expected-shred-version 50850 \
+--known-validator 3K8BYGTPD9AxqYQDPdU8PPy6AfiSwf4hDmFy1xXGB8Ns \
+--known-validator 5dB4Ygb8Sf3Sssdxxrpbb4NFX9bMrYnieiz11Vr5xJkJ \
+--known-validator 7TcmJn12spW6KQJp4fvvo45d1hpxS8EnLjKMxihtNZ1V \
+--known-validator 4jhyvbBHbsRDF6och7pDQ7ahYTUr7wNkAYJTLLuMUtku \
+--known-validator 4rVaXrd7BLSFZMSm4Lq63nxkVyezGxsQVpUhc9LqbxVk \
+--known-validator 82k4RGZAJxtXvW3hzgmHB2q4oDHzgwMR2cGXup324gsJ \
+{% for entrypoint in entrypoints %}
+--entrypoint {{ entrypoint }} \
+{% endfor %}
+--no-port-check \
+--limit-ledger-size \
+--log {{ validator_log_path }} \
+--ledger {{ ledger_path }} \
+--accounts {{ accounts_path }} \
+--accounts-db-caching-enabled \
+--snapshots {{ snapshots_path }} \
+--dynamic-port-range {{ open_solana_ports_start }}-{{ open_solana_ports_end }}
+
+
+[Install]
+WantedBy=multi-user.target

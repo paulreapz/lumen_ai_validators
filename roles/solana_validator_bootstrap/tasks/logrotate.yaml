@@ -1,0 +1,18 @@
+---
+- name: Create log file dir
+  file:
+    path: "{{ validator_log_path }}"
+    state: directory
+    owner: solana
+    group: users
+    mode: '0755'
+
+- name: Create solana logrotate
+  template:
+    src: solana-validator.logrotate.j2
+    dest: /etc/logrotate.d/solana-validator.logrotate
+    mode: 0644
+    owner: root
+    group: root
+  tags:
+    validator.logrotate

@@ -1,0 +1,61 @@
+---
+
+#backward compatibility
+old_swap_file: "/mnt/swap/swapfile"
+old_ramdisk_path: /mnt/ramdisk
+
+# users:
+solana_user: 'solana'
+ansible_user: 'root'
+
+#all:
+accounts_path: "{{ ramdisk_path }}/accounts"
+use_firewall: True
+env_path: "{{ solana_home }}/.local/share/solana/install/active_release/bin"
+fail_if_no_validator_keypair: True
+flat_path: True
+incremental_snapshot_interval_slots: 2500
+ledger_path: "{{ mount_base_path }}/ledger"
+local_secrets_path: '../.secrets'
+log_level: "INFO"
+lvm_enabled: False
+lvm_log_volume_size: '25G'
+lvm_vg: 'vg00'
+mount_base_path: '/mnt/solana'
+max_delinquent_stake: 5
+name: "{{ inventory_hostname }}"
+open_solana_ports_start: 8000
+open_solana_ports_end: 10000
+ramdisk_path: "{{ mount_base_path }}/ramdisk"
+ramdisk_size_gb: 200
+rpc_node: False
+set_validator_info: False
+secrets_path: "/home/{{ solana_user }}/.secrets"
+snapshots_path: "{{ mount_base_path }}/snapshots"
+solana_home: "/home/{{ solana_user }}"
+solana_rpc_port: 8899
+swap_file_size_gb: 64
+upload_validator_keys: True
+validator_name: "{{ inventory_hostname }}"
+validator_log_path: "{{ mount_base_path }}/log"
+
+#validator info
+validator_description: "Bootstrapped with https://lumen.thevalidators.io"
+validator_homepage: ""
+keybase_username: ''
+
+#monitoring:
+telegraf_database: v_metrics
+telegraf_urls: http://influx.thevalidators.io:8086
+telegraf_username: v_user
+telegraf_password: thepassword
+
+# Sys Tuning
+sysctl_params:
+  - 'net.core.wmem_default=134217728'
+  - 'vm.max_map_count=1000000'
+  - 'net.core.wmem_max=134217728'
+  - 'net.core.rmem_default=134217728'
+  - 'net.core.rmem_max=134217728'
+  - 'fs.nr_open=1000000'
+  - 'vm.swappiness=5'

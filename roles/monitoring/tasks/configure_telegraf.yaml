@@ -1,0 +1,45 @@
+---
+
+- name: Create telegraf config
+  template:
+    src: telegraf.conf.j2
+    dest: /etc/telegraf/telegraf.conf
+    mode: 0644
+    owner: root
+    group: root
+    backup: yes
+  tags:
+    - telegraf.configure
+
+- name: Allow 'telegraf' user to run solana scripts
+  lineinfile:
+    path: /etc/sudoers
+    state: present
+    regexp: '^telegraf'
+    line: "telegraf ALL=({{ solana_user }}:{{ solana_user }}) NOPASSWD:ALL"
+    validate: 'visudo -cf %s'
+  tags:
+    - telegraf.configure
+
+- name: Reload systemd
+  systemd:
+    daemon_reload: yes
+  tags:
+    - telegraf.start
+
+- name: Enable telegraf service
+  systemd:
+    name: telegraf
+    enabled: yes
+  tags:
+    - telegraf.start
+
+- name: Start telegraf service
+  systemd:
+    name: telegraf
+    state: restarted
+  tags:
+    - telegraf.start
+    - monitoring.script.library
+    - telegraf.configure
+  become: yes

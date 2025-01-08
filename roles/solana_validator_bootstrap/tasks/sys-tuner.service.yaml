@@ -1,0 +1,30 @@
+---
+- name: Create solana-sys-tuner service
+  template:
+    src: solana-sys-tuner.service.j2
+    dest: /lib/systemd/system/solana-sys-tuner.service
+    mode: 0644
+    owner: root
+    group: root
+  tags:
+    validator.service.sys-tuner
+
+- name: Reload service configuration
+  systemd:
+    daemon_reload: yes
+  tags:
+    validator.service.sys-tuner
+
+- name: Enable solana-sys-tuner service
+  systemd:
+    name: solana-sys-tuner
+    enabled: yes
+  tags:
+    validator.service.sys-tuner
+
+- name: Restart solana-sys-tuner service
+  systemd:
+    name: solana-sys-tuner
+    state: restarted
+  tags:
+    validator.service.sys-tuner

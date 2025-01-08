@@ -1,0 +1,20 @@
+---
+- name: install additional packages
+  import_tasks: packages.yaml
+  tags:
+    - monitoring
+
+- name: Install telegraf
+  import_tasks: install_telegraf.yaml
+  tags:
+    - monitoring
+
+- name: Configure telegraf
+  import_tasks: configure_telegraf.yaml
+  tags:
+    - monitoring
+
+- name: Install monitoring script
+  import_tasks: install_monitoring_script.yaml
+  tags:
+    - monitoring

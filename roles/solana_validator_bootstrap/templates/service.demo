@@ -1,0 +1,44 @@
+[Unit]
+Description=Solana mainnet node
+After=network.target syslog.target
+StartLimitIntervalSec=0
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+LimitNOFILE=1024000
+Environment="SOLANA_METRICS_CONFIG=host=https://metrics.solana.com:8086,db=mainnet-beta,u=mainnet-beta_write,p=password"
+Environment="RUST_LOG=debug,hyper::proto=info,reqwest=info,hyper::client=info,solana_metrics=warn,solana_runtime=info,solana_vote_program=info,solana_core=info,solana_ledger=info,solana_rbpf=info,solana_program=info,solana_perf=info,tokio_reactor=info,jsonrpc_core=info,jsonrpc_core::io=info"
+ExecStart=/home/solana/.local/share/solana/install/active_release/bin/solana-validator \
+--entrypoint entrypoint.mainnet-beta.solana.com:8001 \
+--entrypoint entrypoint2.mainnet-beta.solana.com:8001 \
+--entrypoint entrypoint3.mainnet-beta.solana.com:8001 \
+--entrypoint entrypoint4.mainnet-beta.solana.com:8001 \
+--entrypoint entrypoint5.mainnet-beta.solana.com:8001 \
+--trusted-validator 7Np41oeYqPefeNQEHSv1UDhYrehxin3NStELsSKCT4K2 \
+--trusted-validator GdnSyH3YtwcxFvQrVVJMm1JhTS4QVX7MFsX56uJLUfiZ \
+--trusted-validator DE1bawNcRJB9rVm3buyMVfr8mBEoyyu73NBovf2oXJsJ \
+--trusted-validator CakcnaRDHka2gXyfbEd2d3xsvkJkqsLw2akB3zsN1D2S \
+--expected-genesis-hash 5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d \
+--no-untrusted-rpc \
+--wal-recovery-mode skip_any_corrupted_record \
+--identity /home/solana/mainnet/validator-keypair.json \
+#--vote-account /home/solana/mainnet/vote-account-keypair.json \
+--no-voting \
+--ledger /home/solana/mainnet/ledger \
+--accounts /mnt/ramdisk/mainnet/accounts \
+--limit-ledger-size 50000000 \
+--dynamic-port-range 8000-8010 \
+--log /home/solana/mainnet/solana.log \
+--snapshot-interval-slots 1000 \
+--maximum-local-snapshot-age 1000 \
+--snapshot-compression none \
+--no-port-check \
+--rpc-bind-address 127.0.0.1 \
+--rpc-port 8899 \
+--accounts-db-caching-enabled \
+--account-index program-id spl-token-mint spl-token-owner
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s QUIT $MAINPID
+[Install]
+WantedBy=multi-user.target

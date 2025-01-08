@@ -1,0 +1,22 @@
+{
+"cluster_environment": "{{ hostvars[inventory_hostname]["cluster_environment"] }}",
+"cluster_rpc_address": "{{ hostvars[inventory_hostname]["cluster_rpc_address"] }}",
+"flat_path": "{{ hostvars[inventory_hostname]["flat_path"] }}",
+"keybase_username": "{{ hostvars[inventory_hostname]["keybase_username"] }}",
+"ledger_path": "{{ hostvars[inventory_hostname]["ledger_path"] }}",
+"local_secrets_path": "{{ hostvars[inventory_hostname]["local_secrets_path"] }}",
+"log_level": "{{ hostvars[inventory_hostname]["log_level"] }}",
+"lvm_enabled": "{{ hostvars[inventory_hostname]["lvm_enabled"] }}",
+"lvm_vg": "{{ hostvars[inventory_hostname]["lvm_vg"] | default(omit) }}",
+"ramdisk_size_gb": "{{ hostvars[inventory_hostname]["ramdisk_size_gb"] }}",
+"secrets_path": "{{ hostvars[inventory_hostname]["secrets_path"] }}",
+"set_validator_info": "{{ hostvars[inventory_hostname]["set_validator_info"] }}",
+"snapshots_path": "{{ hostvars[inventory_hostname]["snapshots_path"] }}",
+"solana_user": "{{ hostvars[inventory_hostname]["solana_user"] }}",
+"solana_validator_service": "{{ hostvars[inventory_hostname]["solana_validator_service"] }}",
+"solana_version": "{{ hostvars[inventory_hostname]["solana_version"] }}",
+"swap_file_size_gb": "{{ hostvars[inventory_hostname]["swap_file_size_gb"] }}",
+"upload_validator_keys": "{{ hostvars[inventory_hostname]["upload_validator_keys"] }}",
+"validator_homepage": "{{ hostvars[inventory_hostname]["validator_homepage"] }}",
+"validator_name": "{{ hostvars[inventory_hostname]["validator_name"] }}"
+}

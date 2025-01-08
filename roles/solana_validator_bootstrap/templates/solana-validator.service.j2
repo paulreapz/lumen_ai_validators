@@ -1,0 +1,70 @@
+[Unit]
+Description=Solana {{ cluster_environment }} node
+After=network.target syslog.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User={{ solana_user }}
+LimitNOFILE=1000000
+Environment="PATH=/bin:/usr/bin:{{ env_path }}"
+Environment="SOLANA_METRICS_CONFIG=host={{ solana_metrics_url }}"
+{% if agave is defined and agave %}
+ExecStart={{ env_path }}/agave-validator \
+{% else %}
+ExecStart={{ env_path }}/solana-validator \
+{% endif %}
+--identity {{ secrets_path }}/validator-keypair.json \
+{% if not rpc_node %}
+--vote-account {{ secrets_path }}/vote-account-keypair.json \
+{% endif %}
+--rpc-port {{ solana_rpc_port }} \
+--full-rpc-api \
+--only-known-rpc \
+--expected-genesis-hash {{ expected_genesis_hash }} \
+--incremental-snapshot-interval-slots {{ incremental_snapshot_interval_slots }} \
+--accounts-hash-interval-slots {{ incremental_snapshot_interval_slots }} \
+--use-snapshot-archives-at-startup when-newest \
+{% if not extra_params is none %}
+{% for extra_var in extra_params %}
+{{ extra_var }} \
+{% endfor %}
+{% endif %}
+{% for entrypoint in entrypoints %}
+--entrypoint {{ entrypoint }} \
+{% endfor %}
+{% for known_validator in known_validators %}
+--known-validator {{ known_validator }} \
+{% endfor %}
+{%if 'mainnet_validators' in group_names and not rpc_node %}
+--private-rpc \
+--wal-recovery-mode skip_any_corrupted_record \
+--rpc-bind-address 127.0.0.1 \
+{% endif %}
+{% if rpc_node %}
+--no-voting \
+--account-index program-id \
+--account-index spl-token-mint \
+--account-index spl-token-owner \
+{% endif %}
+--limit-ledger-size {{ limit_ledger_size }} \
+--log {{ validator_log_path }}/solana-validator.log \
+--ledger {{ ledger_path }} \
+--accounts {{ accounts_path }} \
+--snapshots {{ snapshots_path }} \
+{% if jito is defined and jito %}
+--relayer-url http://frankfurt.mainnet.relayer.jito.wtf:8100 \
+--block-engine-url https://frankfurt.mainnet.block-engine.jito.wtf \
+--shred-receiver-address 145.40.93.84:1002 \
+--tip-payment-program-pubkey T1pyyaTNZsKv2WcRAB8oVnk93mLJw2XzjtVYqCsaHqt \
+--tip-distribution-program-pubkey 4R3gSG8BpU4t19KYj8CfnbtRpnT8gtk4dvTHxVRwc2r7 \
+--merkle-root-upload-authority GZctHpWXmsZC1YHACTGGcHhYxjdRqQvTpYkb9LMvxDib \
+--commission-bps 800 \
+{% endif %}
+--dynamic-port-range {{ open_solana_ports_start }}-{{ open_solana_ports_end }}
+
+
+[Install]
+WantedBy=multi-user.target

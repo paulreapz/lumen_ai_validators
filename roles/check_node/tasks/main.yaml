@@ -1,0 +1,31 @@
+---
+
+- name: Build flat keys path
+  set_fact:
+    secrets_local_path: "{{ local_secrets_path }}"
+  when: flat_path|bool
+  tags:
+    - check.keys
+
+- name: Build non flat keys path
+  set_fact:
+    secrets_local_path: "{{ local_secrets_path }}/{{ validator_name }}/solana"
+  when: not flat_path|bool
+  tags:
+    - check.keys
+
+- name: Check validator-keypair exists locally
+  stat:
+    path: "{{ secrets_local_path }}/validator-keypair.json"
+  connection: local
+  become: no
+  delegate_to: localhost
+  register: validator_keypair_exists
+  tags:
+    - check.keys
+
+- name: Fail if no validator-keypair exists locally
+  fail:
+    msg: "No validator-keypair exists locally {{ secrets_local_path }}"
+  when: not validator_keypair_exists.stat.exists
+        and not rpc_node

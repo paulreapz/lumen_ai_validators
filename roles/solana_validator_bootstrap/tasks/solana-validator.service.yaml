@@ -1,0 +1,38 @@
+---
+- name: Remove old service file
+  file:
+    path: /etc/systemd/system/solana-validator.service
+    state: absent
+  tags:
+    - validator.service.solana
+
+- name: Create solana validator service
+  template:
+    src: solana-validator.service.j2
+    dest: /lib/systemd/system/solana-validator.service
+    mode: 0644
+    owner: root
+    group: root
+  tags:
+    - validator.service.solana
+
+- name: Reload systemd
+  systemd:
+    daemon_reload: yes
+  tags:
+    - validator.service.solana
+
+- name: Enable solana service
+  systemd:
+    name: solana-validator
+    enabled: yes
+  tags:
+    - validator.service.solana
+
+- name: Start solana service
+  systemd:
+    name: solana-validator
+    state: "{{ solana_validator_service }}"
+  tags:
+    - validator.service.solana
+

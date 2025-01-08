@@ -1,0 +1,56 @@
+---
+
+- name: ensure directory exists
+  file:
+    path: "/etc/sv_manager"
+    state: directory
+    mode: '0755'
+
+- name: Check if config file exists
+  stat:
+    path: /etc/sv_manager/sv_manager.conf
+  register: config_exists
+
+- name: Load config file
+  slurp:
+    src: /etc/sv_manager/sv_manager.conf
+  register: config_data
+  when: config_exists.stat.exists
+
+# - name: show config data
+#   debug:
+#     msg: "{{ config_data }}"
+#   when: config_exists.stat.exists
+
+- name: set dictionary
+  set_fact:
+    config_dict: "{{ config_data.content | default([]) }}"
+  when: not config_exists.stat.exists
+
+- name: dictionary
+  set_fact:
+    config_dict: "{{ config_data.content | b64decode | from_json | default([]) }}"
+  when: config_exists.stat.exists
+
+- name: create config from template
+  set_fact:
+    config_dict_template: "{{ lookup('template', 'templates/sv_manager.conf.template') }}"
+
+- name: show present config dictionary
+  debug:
+    msg: "{{ config_dict }}"
+
+
+- name: combine with host section
+  set_fact:
+    config_dict:  "{{ config_dict_template | combine(config_dict) }}"
+
+
+- name: show new config
+  debug:
+    var: config_dict
+
+- name: write var to file
+  copy:
+    content: "{{ config_dict | to_nice_json }}"
+    dest: /etc/sv_manager/sv_manager.conf

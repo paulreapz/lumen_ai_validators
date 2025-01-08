@@ -1,0 +1,25 @@
+---
+set_validator_info: False
+cluster_environment: 'mainnet-beta'
+cluster_rpc_address: 'https://api.mainnet-beta.solana.com'
+solana_validator_service: stopped
+swap_file_size_gb: 200
+entrypoints:
+  - entrypoint.mainnet-beta.solana.com:8001
+  - entrypoint2.mainnet-beta.solana.com:8001
+  - entrypoint3.mainnet-beta.solana.com:8001
+  - entrypoint4.mainnet-beta.solana.com:8001
+  - entrypoint5.mainnet-beta.solana.com:8001
+known_validators:
+  - 7Np41oeYqPefeNQEHSv1UDhYrehxin3NStELsSKCT4K2
+  - GdnSyH3YtwcxFvQrVVJMm1JhTS4QVX7MFsX56uJLUfiZ
+  - DE1bawNcRJB9rVm3buyMVfr8mBEoyyu73NBovf2oXJsJ
+  - CakcnaRDHka2gXyfbEd2d3xsvkJkqsLw2akB3zsN1D2S
+solana_metrics_url: 'https://metrics.solana.com:8086,db=mainnet-beta,u=mainnet-beta_write,p=password'
+expected_genesis_hash: '5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d'
+limit_ledger_size: 50000000
+maximum_local_snapshot_age: 2000
+solana_version: 1.18.18
+jito_version: 1.18.15
+agave_version: 2.0.2 
+extra_params:

@@ -1,0 +1,39 @@
+---
+- name: set force install fact
+  set_fact:
+    force: "{{ force | default('false')  }}"
+
+- name: check ramdisk mount point extsts
+  stat:
+    path: "{{ ramdisk_path }}"
+  register: ramdisk_exists
+  tags:
+    - config.ramdisk
+
+- name: check OLD ramdisk mount point extsts
+  stat:
+    path: "{{ old_ramdisk_path }}"
+  register: old_ramdisk_exists
+  tags:
+    - config.ramdisk
+
+- name: create ramdisk mount point
+  file:
+    path: "{{ ramdisk_path }}"
+    state: directory
+    mode: '0755'
+  tags:
+    - config.ramdisk.directory
+  when: force or (not ramdisk_exists.stat.exists and not old_ramdisk_exists.stat.exists)
+
+- name: Write ramdisk entry in fstab
+  mount: name={{ ramdisk_path }}
+         src=tmpfs
+         fstype=tmpfs
+         opts=nodev,nosuid,noexec,nodiratime,size={{ ramdisk_size_gb }}G
+         passno=0
+         dump=0
+         state=mounted
+  tags:
+    - config.ramdisk.fstab
+  when: force or (not ramdisk_exists.stat.exists and not old_ramdisk_exists.stat.exists)

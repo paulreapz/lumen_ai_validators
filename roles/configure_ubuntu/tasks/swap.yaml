@@ -1,0 +1,72 @@
+---
+- name: set force install fact
+  set_fact:
+    force: "{{ force | default('false')  }}"
+  tags:
+    - config.swap
+
+- name: check swap file exists
+  stat:
+    path: "{{ mount_base_path }}/swap/swapfile"
+  tags:
+    - config.swap
+  register: swap_file_exists
+
+- name: check OLD swap file exists
+  stat:
+    path: "{{ old_swap_file }}"
+  tags:
+    - config.swap
+  register: old_swap_file_exists
+
+- name: Create swap dir mount point
+  file:
+    path: "{{ mount_base_path }}/swap"
+    state: directory
+    mode: '0755'
+  when: force or (not swap_file_exists.stat.exists and not old_swap_file_exists.stat.exists)
+
+- name: disable current swap
+  command: swapoff -a
+  tags:
+    - config.swap.file.disable
+  when: force or (not swap_file_exists.stat.exists and not old_swap_file_exists.stat.exists)
+
+- name: Create swap file
+  command: fallocate -l {{ swap_file_size_gb }}G {{ mount_base_path }}/swap/swapfile 
+  tags:
+    - config.swap.file.create
+  when: force or (not swap_file_exists.stat.exists and not old_swap_file_exists.stat.exists)
+
+- name: Change swap file permissions
+  file: path="{{ mount_base_path }}/swap/swapfile"
+        owner=root
+        group=root
+        mode=0600
+  tags:
+    - config.swap.file.permissions
+  when: force or (not swap_file_exists.stat.exists and not old_swap_file_exists.stat.exists)
+
+- name: Make swap file
+  command: "mkswap {{ mount_base_path }}/swap/swapfile"
+  tags:
+    - config.swap.file.mkswap
+  when: force or (not swap_file_exists.stat.exists and not old_swap_file_exists.stat.exists)
+
+- name: Write swap entry in fstab
+  mount: name=none
+         src={{ mount_base_path }}/swap/swapfile
+         fstype=swap
+         opts=sw
+         passno=0
+         dump=0
+         state=present
+  tags:
+    - config.swap.fstab
+  when: force or (not swap_file_exists.stat.exists and not old_swap_file_exists.stat.exists)
+
+- name: Mount swap
+  command: "swapon {{ mount_base_path }}/swap/swapfile"
+  tags:
+    - config.swap.file.swapon
+  when: force or (not swap_file_exists.stat.exists and not old_swap_file_exists.stat.exists)

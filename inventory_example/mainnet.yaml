@@ -1,0 +1,28 @@
+---
+all:
+  children:
+    mainnet_validators:
+      children:
+        remote:
+          hosts:
+            server1:
+              ansible_host: <ip address>
+              #any var from group vars:
+              ramdisk_size_gb: <number>
+              validator_description: 'Bootstrapped with https://sv-manager.thevalidators.io'
+              validator_homepage: ''
+              validator_keybase: ''
+            server2:
+              ansible_host: <ip address>
+              #any var from group vars:
+              ramdisk_size_gb: <number>              
+        local:
+          hosts:
+            localhost:
+              #any var from group vars:
+              validator_name: "<validator name>"
+            localhost_rpc:
+              ansible_host: localhost
+              force: true
+              rpc_node: true
+              solana_validator_service: started              

@@ -1,0 +1,74 @@
+[agent]
+  hostname = "{{ validator_name }}" # set this to a name you want to identify your node in the grafana dashboard
+  flush_interval = "30s"
+  interval = "30s"
+
+##INPUTS
+[[inputs.cpu]]
+  ## Whether to report per-cpu stats or not
+  percpu = false
+  ## Whether to report total system cpu stats or not
+  totalcpu = true
+  ## If true, collect raw CPU time metrics.
+  collect_cpu_time = false
+  ## If true, compute and report the sum of all non-idle CPU states.
+  report_active = false
+
+[[inputs.disk]]
+  ## By default stats will be gathered for all mount points.
+  ## Set mount_points will restrict the stats to only the specified mount points.
+  mount_points = ["/", "{{ ledger_path }}", "{{ accounts_path }}"]
+
+  ## Ignore mount points by filesystem type.
+  ignore_fs = ["devtmpfs", "devfs", "iso9660", "overlay", "aufs", "squashfs"]
+
+[[inputs.diskio]]
+
+[[inputs.net]]
+
+[[inputs.nstat]]
+
+[[inputs.procstat]]
+ pattern="{{ solana_user }}"
+
+[[inputs.system]]
+
+[[inputs.systemd_units]]
+    [inputs.systemd_units.tagpass]
+    name = ["solana*"]
+
+[[inputs.mem]]
+
+[[inputs.swap]]
+
+[[inputs.exec]]
+  commands = [
+               "sudo -i -u {{ solana_user }} {{ solana_home }}/monitoring/output_starter.sh output_validator_measurements"
+             ]
+  interval = "30s"
+  timeout = "30s"
+  json_name_key = "measurement"
+  json_time_key = "time"
+  tag_keys = ["tags_validator_name",
+              "tags_validator_identity_pubkey",
+              "tags_validator_vote_pubkey",
+              "tags_cluster_environment",
+              "validator_id",
+              "validator_name"]
+
+  json_string_fields = [
+            "monitoring_version",
+            "solana_version",
+            "validator_identity_pubkey",
+            "validator_vote_pubkey",
+            "cluster_environment",
+            "cpu_model"]
+
+  json_time_format = "unix_ms"
+
+##OUTPUTS
+[[outputs.influxdb]]
+  database = "{{ telegraf_database }}"
+  urls = [ "{{ telegraf_urls }}" ]
+  username = "{{ telegraf_username }}"
+  password = "{{ telegraf_password }}"

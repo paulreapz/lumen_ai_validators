@@ -1,0 +1,12 @@
+---
+- name: install solana validator
+  hosts: all
+  become: yes
+  roles:
+    - check_node
+    - configure_ubuntu
+    - agave_cli
+    - solana_validator_bootstrap
+    - monitoring
+  vars:
+    - agave: yes

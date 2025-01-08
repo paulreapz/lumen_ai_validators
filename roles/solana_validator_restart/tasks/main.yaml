@@ -1,0 +1,24 @@
+---
+
+- name: wait for restarting window
+  import_tasks: wait_for_restart_window.yaml
+  tags:
+    - validator.manage.restart
+
+- name: restart sys_tuner-service
+  systemd:
+    name: solana-sys-tuner
+    state: restarted
+  tags:
+    - validator.manage.restart.service
+    - validator.manage.restart
+
+- name: restart solana validator service
+  systemd:
+    name: solana-validator
+    state: restarted
+  tags:
+    - validator.manage.restart.service
+    - validator.manage.restart
+
+

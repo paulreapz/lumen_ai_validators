@@ -1,0 +1,9 @@
+---
+- name: set cluster environment
+  shell: solana config set --url {{ cluster_rpc_address }}
+  become: yes
+  become_user: "{{ solana_user }}"
+  environment:
+    PATH: "{{ env_path }}"
+  tags:
+    validator.manage.cluster

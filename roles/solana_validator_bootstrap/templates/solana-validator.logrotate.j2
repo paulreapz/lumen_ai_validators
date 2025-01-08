@@ -1,0 +1,12 @@
+{{ validator_log_path }}/solana-validator.log {
+  su root root
+  rotate 1
+  daily
+  size 1G
+  compress
+  missingok
+  postrotate
+    systemctl kill -s USR1 solana-validator.service
+  endscript
+}
+

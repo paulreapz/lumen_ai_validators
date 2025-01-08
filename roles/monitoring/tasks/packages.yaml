@@ -1,0 +1,16 @@
+- name: Update apt cache
+  apt:
+    update_cache: yes
+  ignore_errors: yes
+
+- name: Install additional packages
+  apt:
+    pkg:
+      - gpg
+      - gpg-agent
+      - python3
+      - python3-pip
+      - python3-virtualenv
+      - coreutils
+  tags:
+    - config.packages

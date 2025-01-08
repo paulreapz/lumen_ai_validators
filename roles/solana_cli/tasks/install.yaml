@@ -1,0 +1,51 @@
+---
+- name: create download dir
+  file:
+    path: /tmp/solana
+    state: directory
+    owner: "{{ solana_user }}"
+    group: "{{ solana_user }}"
+  tags:
+    - cli.install
+
+- name: install solana
+  block:
+    - name: download latest solana release installer
+      get_url:
+        url: "https://release.solana.com/v{{ solana_version | default('stable') }}/install"
+        dest: /tmp/solana/
+        mode: 0755
+
+    - name: run solana installer
+      shell: /tmp/solana/install
+  become: yes
+  become_user: "{{ solana_user }}"
+  tags:
+    - cli.install
+  when: jito is not defined or not jito
+
+- name: install JITO solana
+  block:
+    - name: download latest jito release installer
+      get_url:
+        url: "https://release.jito.wtf/v{{ jito_version | default('stable') }}-jito/install"
+        dest: /tmp/solana/
+        mode: 0755
+
+    - name: run jito installer
+      shell: /tmp/solana/install
+  become: yes
+  become_user: "{{ solana_user }}"
+  tags:
+    - cli.install
+  when: jito is defined and jito
+
+- name: remove installer
+  file:
+    path: /tmp/solana
+    state: absent
+  tags:
+    - cli.install
+
+
+

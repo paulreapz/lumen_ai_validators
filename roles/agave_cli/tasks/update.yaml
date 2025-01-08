@@ -1,0 +1,12 @@
+- name: DEBUG
+  debug:
+    msg: "Updating Solana to {{ agave_version }}"
+
+- name: update solana (agave)
+  shell: "agave-install init {{ agave_version }}"
+  become: yes
+  become_user: "{{ solana_user }}"
+  environment:
+    PATH: "{{ solana_home }}/.local/share/solana/install/active_release/bin"
+  tags:
+    - cli.update

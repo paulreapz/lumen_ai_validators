@@ -1,0 +1,37 @@
+---
+- name: Create ansible user
+  user:
+    name: ansible
+    state: present
+    create_home: yes
+    shell: /bin/bash
+    skeleton: /etc/skel
+  tags:
+    - config.ansible_user
+
+- name: Allow 'ansible' group to have passwordless sudo
+  lineinfile:
+    path: /etc/sudoers
+    state: present
+    regexp: '^%ansible'
+    line: '%ansible ALL=(ALL) NOPASSWD: ALL'
+    validate: 'visudo -cf %s'
+  tags:
+    - config.ansible_user
+
+- name: Create .ssh folder
+  file:
+    path: /home/ansible/.ssh
+    state: directory
+    owner: ansible
+    group: ansible
+  tags:
+    - config.ansible_user
+
+- name: Put the public key of ansible-master
+  lineinfile:
+    path: /home/ansible/.ssh/authorized_keys
+    line: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+    create: yes
+  tags:
+    - config.ansible_user

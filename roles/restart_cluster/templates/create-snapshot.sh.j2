@@ -1,0 +1,8 @@
+#!/bin/bash
+#set -x -e
+
+create_snapshot_form_ledger() {
+  sudo -i -u solana solana-ledger-tool --ledger {{ validator.ledger_path }} create-snapshot 95038710 {{ validator.snapshots_path }} --snapshot-archive-path {{ validator.snapshots_path }}  --hard-fork 95038710 --wal-recovery-mode skip_any_corrupted_record
+}
+
+create_snapshot_form_ledger

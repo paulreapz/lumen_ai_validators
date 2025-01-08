@@ -1,0 +1,29 @@
+---
+- name: check is real cpu
+  stat:
+    path: /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+  register: scaling_governor_exists
+  tags:
+    - config.cpu
+
+- name: set cpu governor to performance
+  shell: echo "performance" | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
+  become: yes
+  become_user: root
+  tags:
+    - config.cpu
+  when: scaling_governor_exists.stat.exists
+
+# - name: Populate service facts
+#   ansible.builtin.service_facts:
+#   tags:
+#     - config.cpu
+  
+# - name: Disable ondemand service
+#   systemd:
+#     name: ondemand
+#     state: stopped
+#     enabled: no
+#   tags:
+#     - config.cpu
+#   when: "'ondemand' in services"
