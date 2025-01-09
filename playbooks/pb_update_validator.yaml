@@ -1,9 +1,9 @@
 ---
-- name: update solana validator
-  hosts: all
-  serial: 1
-  become: yes
+- name: Update Solana validator
+  hosts: all                                  # Apply to all hosts
+  serial: 1                                  # Update one host at a time
+  become: yes                                # Elevate privileges for task execution
   roles:
-    - solana_cli
-    - solana_validator_bootstrap
-    - solana_validator_restart
+    - solana_cli                             # Update Solana CLI
+    - solana_validator_bootstrap             # Update validator bootstrap
+    - solana_validator_restart               # Restart the validator after update
