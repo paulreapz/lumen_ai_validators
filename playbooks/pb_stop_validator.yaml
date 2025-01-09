@@ -1,9 +1,8 @@
 ---
-
-- name: stop solana validator
-  hosts: "{{ host_hosts | default('remote') }}"
-  become: yes
+- name: Stop Solana validator
+  hosts: "{{ host_hosts | default('remote') }}"  # Define target hosts (default: remote)
+  become: yes                                   # Elevate privileges for task execution
   tags:
-    - validator.cluster.restart
+    - validator.cluster.restart                # Tag for restart-related tasks
   roles:
-    - solana_validator_restart
+    - solana_validator_restart                 # Use the 'solana_validator_restart' role
