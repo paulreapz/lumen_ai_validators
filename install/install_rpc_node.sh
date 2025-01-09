@@ -1,16 +1,19 @@
 #!/bin/bash
 #set -x -e
 
-echo "###################### WARNING!!! ######################"
-echo "###   This script will bootstrap an RPC node         ###"
-echo "###   for the Solana blockchain, and connect         ###"
-echo "###   it to the monitoring dashboard                 ###"
-echo "###   at solana.thevalidators.io                     ###"
-echo "########################################################"
+# Warning and Information
+cat << "EOF"
+###################### WARNING!!! ######################
+###   This script will bootstrap an RPC node         ###
+###   for the Solana blockchain, and connect         ###
+###   it to the monitoring dashboard                 ###
+###   at solana.thevalidators.io                     ###
+########################################################
+EOF
 
-install_rpc () {
+install_rpc() {
 
-  echo "### Please choose the cluster: ###"
+  echo "### Select the cluster for RPC node setup ###"
   select cluster in "mainnet-beta" "testnet"; do
       case $cluster in
           mainnet-beta ) inventory="mainnet.yaml"; break;;
@@ -20,97 +23,60 @@ install_rpc () {
 
   echo "Please enter a name for your RPC node: "
   read VALIDATOR_NAME
-  read -e -p "Please enter the full path to your validator key pair file or leave it blank, then the keys will be created: " -i "" PATH_TO_VALIDATOR_KEYS
+  read -e -p "Enter the full path to your validator key pair file (leave blank to create new keys): " -i "" PATH_TO_VALIDATOR_KEYS
 
+  read -e -p "Enter new RAM drive size in GB (recommended: server RAM minus 16GB): " -i "48" RAM_DISK_SIZE
+  read -e -p "Enter new server swap size in GB (recommended: equal to server RAM): " -i "64" SWAP_SIZE
 
-  read -e -p "Enter new RAM drive size, GB (recommended size: server RAM minus 16GB):" -i "48" RAM_DISK_SIZE
-  read -e -p "Enter new server swap size, GB (recommended size: equal to server RAM): " -i "64" SWAP_SIZE
-
+  # Clean previous manager setup
   rm -rf sv_manager/
 
-  if [[ $(which apt | wc -l) -gt 0 ]]
-  then
-  pkg_manager=apt
-  elif [[ $(which yum | wc -l) -gt 0 ]]
-  then
-  pkg_manager=yum
+  # Detect package manager
+  if [[ $(which apt | wc -l) -gt 0 ]]; then
+    pkg_manager=apt
+  elif [[ $(which yum | wc -l) -gt 0 ]]; then
+    pkg_manager=yum
   fi
 
-  echo "Updating packages..."
+  echo "### Updating packages... ###"
   $pkg_manager update
-  echo "Installing ansible, curl, unzip..."
+  echo "### Installing dependencies... ###"
   $pkg_manager install ansible curl unzip --yes
 
-  ansible-galaxy collection install ansible.posix
-  ansible-galaxy collection install community.general
+  ansible-galaxy collection install ansible.posix community.general
 
-  echo "Downloading Solana validator manager version $sv_manager_version"
+  echo "### Downloading Solana validator manager ###"
   cmd="https://github.com/mfactory-lab/sv-manager/archive/refs/tags/$sv_manager_version.zip"
-  echo "starting $cmd"
   curl -fsSL "$cmd" --output sv_manager.zip
-  echo "Unpacking"
+  echo "### Unpacking manager ###"
   unzip ./sv_manager.zip -d .
-
   mv sv-manager* sv_manager
   rm ./sv_manager.zip
-  cd ./sv_manager || exit
+  cd sv_manager || exit 1
   cp -r ./inventory_example ./inventory
 
-  # shellcheck disable=SC2154
-  #echo "pwd: $(pwd)"
-  #ls -lah ./
+  extra_vars="{ 'validator_name':'$VALIDATOR_NAME', 'local_secrets_path':'$PATH_TO_VALIDATOR_KEYS', 'swap_file_size_gb':$SWAP_SIZE, 'ramdisk_size_gb':$RAM_DISK_SIZE, 'fail_if_no_validator_keypair': False }"
 
-  ansible-playbook --connection=local --inventory ./inventory/$inventory --limit localhost_rpc  playbooks/pb_config.yaml --extra-vars "{ \
-  'validator_name':'$VALIDATOR_NAME', \
-  'local_secrets_path': '$PATH_TO_VALIDATOR_KEYS', \
-  'swap_file_size_gb': $SWAP_SIZE, \
-  'ramdisk_size_gb': $RAM_DISK_SIZE, \
-  'fail_if_no_validator_keypair: False'
-  }"
+  ansible-playbook --connection=local --inventory ./inventory/$inventory --limit localhost_rpc playbooks/pb_config.yaml --extra-vars "$extra_vars"
 
-  if [ ! -z $solana_version ]
-  then
-    SOLANA_VERSION="--extra-vars {\"solana_version\":\"$solana_version\"}"
-  fi
-  if [ ! -z $extra_vars ]
-  then
-    EXTRA_INSTALL_VARS="--extra-vars {$extra_vars}"
-  fi
-  if [ ! -z $tags ]
-  then
-    TAGS="--tags {$tags}"
-  fi
+  ansible-playbook --connection=local --inventory ./inventory/$inventory --limit localhost_rpc playbooks/pb_install_validator.yaml --extra-vars "/etc/sv_manager/sv_manager.conf"
 
-  ansible-playbook --connection=local --inventory ./inventory/$inventory --limit localhost_rpc  playbooks/pb_install_validator.yaml --extra-vars "@/etc/sv_manager/sv_manager.conf" $SOLANA_VERSION $EXTRA_INSTALL_VARS $TAGS
-
-  echo "### 'Uninstall ansible ###"
-
+  echo "### Cleaning up Ansible installation ###"
   $pkg_manager remove ansible --yes
 
-  echo "### Check your dashboard: https://solana.thevalidators.io/d/e-8yEOXMwerfwe/solana-monitoring?&var-server=$VALIDATOR_NAME"
-
+  echo "### RPC node setup complete. Monitor at: https://solana.thevalidators.io/d/e-8yEOXMwerfwe/solana-monitoring?&var-server=$VALIDATOR_NAME ###"
 }
 
-
-while [ $# -gt 0 ]; do
-
-   if [[ $1 == *"--"* ]]; then
-        param="${1/--/}"
-        declare ${param}="$2"
-        #echo $1 $2 // Optional to see the parameter:value result
-   fi
-
-  shift
-done
-
+# Default manager version
 sv_manager_version=${sv_manager_version:-latest}
 
-echo "installing sv manager version $sv_manager_version"
-
-echo "This script will bootstrap a Solana RPC node. Proceed?"
+# Main script logic
+cat << "EOF"
+This script will bootstrap a Solana RPC node. Proceed?
+EOF
 select yn in "Yes" "No"; do
     case $yn in
-        Yes ) install_rpc "$sv_manager_version" "$extra_vars" "$solana_version" "$tags"; break;;
-        No ) echo "Aborting install. No changes will be made."; exit;;
+        Yes ) install_rpc; break;;
+        No ) echo "Aborting installation. No changes made."; exit 0;;
     esac
 done
