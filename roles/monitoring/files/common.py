@@ -5,6 +5,9 @@ import time
 
 
 class ValidatorConfig:
+    """
+    Configuration class for a validator, storing essential parameters.
+    """
     def __init__(self,
                  validator_name: str,
                  secrets_path: str,
@@ -21,7 +24,9 @@ class ValidatorConfig:
 
 
 class JsonEncoder(json.JSONEncoder):
-    """ Special json encoder for numpy types """
+    """
+    Custom JSON encoder to handle numpy data types and structures.
+    """
     def default(self, obj):
         if isinstance(obj, (numpy.int_, numpy.intc, numpy.intp, numpy.int8,
                             numpy.int16, numpy.int32, numpy.int64, numpy.uint8,
@@ -36,18 +41,48 @@ class JsonEncoder(json.JSONEncoder):
 
 
 def debug(config: ValidatorConfig, data):
+    """
+    Prints debug information if debug mode is enabled in the configuration.
+
+    Args:
+        config (ValidatorConfig): The validator configuration.
+        data: Data to be printed for debugging.
+    """
     if config.debug_mode:
         pprint(data)
 
 
 def print_json(data):
+    """
+    Prints a Python object as a JSON string using the custom encoder.
+
+    Args:
+        data: Data to be printed in JSON format.
+    """
     print(json.dumps(data, cls=JsonEncoder))
 
 
 def measurement_from_fields(name, data, tags, config, legacy_tags=None):
+    """
+    Constructs a measurement dictionary for monitoring purposes.
+
+    Args:
+        name (str): Name of the measurement.
+        data (dict): Field data for the measurement.
+        tags (dict): Tags associated with the measurement.
+        config (ValidatorConfig): Validator configuration.
+        legacy_tags (dict, optional): Additional legacy tags to include.
+
+    Returns:
+        dict: Constructed measurement dictionary.
+    """
     if legacy_tags is None:
         legacy_tags = {}
+
+    # Add cluster environment data
     data.update({"cluster_environment": config.cluster_environment})
+
+    # Base measurement structure
     measurement = {
         "measurement": name,
         "time": round(time.time() * 1000),
@@ -56,7 +91,8 @@ def measurement_from_fields(name, data, tags, config, legacy_tags=None):
         "fields": data,
         "tags": tags
     }
-    
+
+    # Include legacy tags
     measurement.update(legacy_tags)
 
     return measurement
