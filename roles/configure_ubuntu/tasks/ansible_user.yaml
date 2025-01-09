@@ -1,37 +1,38 @@
----
+# Task: Create an 'ansible' user and configure passwordless sudo access
+
 - name: Create ansible user
   user:
-    name: ansible
-    state: present
-    create_home: yes
-    shell: /bin/bash
-    skeleton: /etc/skel
+    name: ansible             # Define the username as 'ansible'
+    state: present            # Ensure the user exists
+    create_home: yes          # Create a home directory for the user
+    shell: /bin/bash          # Set the default shell to bash
+    skeleton: /etc/skel       # Use the default skeleton directory for home
   tags:
-    - config.ansible_user
+    - config.ansible_user     # Tag for categorization
 
 - name: Allow 'ansible' group to have passwordless sudo
   lineinfile:
-    path: /etc/sudoers
-    state: present
-    regexp: '^%ansible'
-    line: '%ansible ALL=(ALL) NOPASSWD: ALL'
-    validate: 'visudo -cf %s'
+    path: /etc/sudoers        # File to modify
+    state: present            # Ensure the line exists
+    regexp: '^%ansible'       # Match lines starting with '%ansible'
+    line: '%ansible ALL=(ALL) NOPASSWD: ALL' # Add passwordless sudo for the group
+    validate: 'visudo -cf %s' # Validate the sudoers file syntax
   tags:
-    - config.ansible_user
+    - config.ansible_user     # Tag for categorization
 
 - name: Create .ssh folder
   file:
-    path: /home/ansible/.ssh
-    state: directory
-    owner: ansible
-    group: ansible
+    path: /home/ansible/.ssh  # Path to the SSH directory
+    state: directory          # Ensure it is a directory
+    owner: ansible            # Set ownership to the ansible user
+    group: ansible            # Set the group to ansible
   tags:
-    - config.ansible_user
+    - config.ansible_user     # Tag for categorization
 
-- name: Put the public key of ansible-master
+- name: Add the public key of ansible-master
   lineinfile:
-    path: /home/ansible/.ssh/authorized_keys
-    line: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
-    create: yes
+    path: /home/ansible/.ssh/authorized_keys # Path to the authorized_keys file
+    line: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}" # Insert public key
+    create: yes              # Create the file if it does not exist
   tags:
-    - config.ansible_user
+    - config.ansible_user     # Tag for categorization
