@@ -1,56 +1,49 @@
 ---
 
-- name: ensure directory exists
+- name: Ensure directory for sv_manager exists
   file:
-    path: "/etc/sv_manager"
-    state: directory
-    mode: '0755'
+    path: "/etc/sv_manager"       # Directory for sv_manager configurations
+    state: directory               # Ensure the directory exists
+    mode: '0755'                   # Set permissions
 
-- name: Check if config file exists
+- name: Check if sv_manager config file exists
   stat:
-    path: /etc/sv_manager/sv_manager.conf
+    path: /etc/sv_manager/sv_manager.conf  # Path to the configuration file
   register: config_exists
 
-- name: Load config file
+- name: Load existing sv_manager config file
   slurp:
-    src: /etc/sv_manager/sv_manager.conf
+    src: /etc/sv_manager/sv_manager.conf  # Load the content of the configuration file
   register: config_data
-  when: config_exists.stat.exists
+  when: config_exists.stat.exists         # Only run if the configuration file exists
 
-# - name: show config data
-#   debug:
-#     msg: "{{ config_data }}"
-#   when: config_exists.stat.exists
-
-- name: set dictionary
+- name: Set default dictionary if config does not exist
   set_fact:
     config_dict: "{{ config_data.content | default([]) }}"
-  when: not config_exists.stat.exists
+  when: not config_exists.stat.exists     # Run only if the configuration file does not exist
 
-- name: dictionary
+- name: Parse existing config file into dictionary
   set_fact:
     config_dict: "{{ config_data.content | b64decode | from_json | default([]) }}"
-  when: config_exists.stat.exists
+  when: config_exists.stat.exists         # Run only if the configuration file exists
 
-- name: create config from template
+- name: Load config template
   set_fact:
-    config_dict_template: "{{ lookup('template', 'templates/sv_manager.conf.template') }}"
+    config_dict_template: "{{ lookup('template', 'templates/sv_manager.conf.template') }}"  # Load template configuration
 
-- name: show present config dictionary
+- name: Show current configuration dictionary
   debug:
     msg: "{{ config_dict }}"
 
-
-- name: combine with host section
+- name: Merge template with current configuration
   set_fact:
-    config_dict:  "{{ config_dict_template | combine(config_dict) }}"
+    config_dict: "{{ config_dict_template | combine(config_dict) }}"
 
-
-- name: show new config
+- name: Show updated configuration dictionary
   debug:
     var: config_dict
 
-- name: write var to file
+- name: Write updated configuration to file
   copy:
-    content: "{{ config_dict | to_nice_json }}"
+    content: "{{ config_dict | to_nice_json }}"  # Save updated configuration as a JSON file
     dest: /etc/sv_manager/sv_manager.conf
