@@ -1,14 +1,17 @@
 #!/bin/bash
 #set -x -e
 
-echo "###################### WARNING!!! ######################"
-echo "###   This script will install and/or reconfigure    ###"
-echo "### telegraf and point it to solana.thevalidators.io ###"
-echo "########################################################"
+# Warning and Information
+cat << "EOF"
+###################### WARNING!!! ######################
+###   This script will install and/or reconfigure    ###
+###   Telegraf and point it to solana.thevalidators.io ###
+########################################################
+EOF
 
-install_monitoring () {
+install_monitoring() {
 
-  echo "### Which cluster you wnat to monitor? ###"
+  echo "### Select the cluster for monitoring ###"
   select cluster in "mainnet-beta" "testnet"; do
       case $cluster in
           mainnet-beta ) inventory="mainnet.yaml"; break;;
@@ -16,82 +19,74 @@ install_monitoring () {
       esac
   done
 
-
-  echo "### Please type your validator name: "
+  echo "Please enter the validator name: "
   read VALIDATOR_NAME
-  echo "### Please type the full path to your validator keys: "
+  echo "Enter the full path to your validator keys: "
   read PATH_TO_VALIDATOR_KEYS
 
-  if [ ! -f "$PATH_TO_VALIDATOR_KEYS/validator-keypair.json" ]
-  then
-    echo "key $PATH_TO_VALIDATOR_KEYS/validator-keypair.json not found. Pleas verify and run the script again"
-    exit
+  if [ ! -f "$PATH_TO_VALIDATOR_KEYS/validator-keypair.json" ]; then
+    echo "Error: Key $PATH_TO_VALIDATOR_KEYS/validator-keypair.json not found. Verify and run again."
+    exit 1
   fi
 
-  read -e -p "### Please tell which user is running validator: " SOLANA_USER
-  cd
+  read -e -p "Enter the user running the validator: " SOLANA_USER
+
+  # Clean previous manager setup
   rm -rf sv_manager/
 
-  if [[ $(which apt | wc -l) -gt 0 ]]
-  then
-  pkg_manager=apt
-  elif [[ $(which yum | wc -l) -gt 0 ]]
-  then
-  pkg_manager=yum
+  # Detect package manager
+  if [[ $(which apt | wc -l) -gt 0 ]]; then
+    pkg_manager=apt
+  elif [[ $(which yum | wc -l) -gt 0 ]]; then
+    pkg_manager=yum
   fi
 
-  echo "### Update packages... ###"
+  echo "### Updating packages... ###"
   $pkg_manager update
-  echo "### Install ansible, curl, unzip... ###"
+  echo "### Installing dependencies... ###"
   $pkg_manager install ansible curl unzip --yes
-  
-  # fix for eventually hanging of pip
+
+  # Fix for hanging pip
   export PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring
 
-  ansible-galaxy collection install ansible.posix
-  ansible-galaxy collection install community.general
+  ansible-galaxy collection install ansible.posix community.general
 
-  echo "### Download Solana validator manager"
+  echo "### Downloading Solana validator manager ###"
   cmd="https://github.com/mfactory-lab/sv-manager/archive/refs/tags/$1.zip"
-  echo "starting $cmd"
   curl -fsSL "$cmd" --output sv_manager.zip
-  echo "### Unpack Solana validator manager ###"
+  echo "### Unpacking manager ###"
   unzip ./sv_manager.zip -d .
-
   mv sv-manager* sv_manager
   rm ./sv_manager.zip
-  cd ./sv_manager || exit
+  cd sv_manager || exit 1
   cp -r ./inventory_example ./inventory
 
-  #echo $(pwd)
-  ansible-playbook --connection=local --inventory ./inventory/$inventory --limit localhost  playbooks/pb_config.yaml --extra-vars "{ \
-  'solana_user': '$SOLANA_USER', \
-  'validator_name':'$VALIDATOR_NAME', \
-  'local_secrets_path': '$PATH_TO_VALIDATOR_KEYS' \
-  }"
+  ansible-playbook --connection=local --inventory ./inventory/$inventory --limit localhost playbooks/pb_config.yaml --extra-vars "{ 'solana_user': '$SOLANA_USER', 'validator_name':'$VALIDATOR_NAME', 'local_secrets_path': '$PATH_TO_VALIDATOR_KEYS' }"
+  ansible-playbook --connection=local --inventory ./inventory/$inventory --limit localhost playbooks/pb_install_monitoring.yaml --extra-vars "/etc/sv_manager/sv_manager.conf"
 
-  ansible-playbook --connection=local --inventory ./inventory/$inventory --limit localhost  playbooks/pb_install_monitoring.yaml --extra-vars "@/etc/sv_manager/sv_manager.conf"
-
-  echo "### Cleanup install folder ###"
+  echo "### Cleaning up installation folder ###"
   cd ..
   rm -r ./sv_manager
-  echo "### Cleanup install folder done ###"
-  echo "### Check your dashboard: https://solana.thevalidators.io/d/e-8yEOXMwerfwe/solana-monitoring?&var-server="$VALIDATOR_NAME
+  echo "### Cleanup complete ###"
 
-  echo Do you want to UNinstall ansible?
+  echo "### Monitor at: https://solana.thevalidators.io/d/e-8yEOXMwerfwe/solana-monitoring?&var-server=$VALIDATOR_NAME ###"
+
+  echo "Do you want to uninstall Ansible?"
   select yn in "Yes" "No"; do
       case $yn in
           Yes ) $pkg_manager remove ansible --yes; break;;
-          No ) echo "### Okay, ansible is still installed on this system.  ###"; break;;
+          No ) echo "Ansible is still installed on this system."; break;;
       esac
   done
-
 }
 
-echo Do you want to install monitoring?
+# Main script logic
+cat << "EOF"
+Do you want to install monitoring?
+EOF
 select yn in "Yes" "No"; do
     case $yn in
         Yes ) install_monitoring "${1:-latest}"; break;;
-        No ) echo "### Aborting install. No changes are made on the system."; exit;;
+        No ) echo "Aborting installation. No changes made."; exit 0;;
     esac
 done
