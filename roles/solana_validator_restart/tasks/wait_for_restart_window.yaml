@@ -1,23 +1,26 @@
 ---
-
-- name: wait for restarting window
-  become: yes
-  become_user: "{{ solana_user }}"
-  shell: solana-validator --ledger {{ ledger_path }} wait-for-restart-window --max-delinquent-stake {{ max_delinquent_stake }}
+- name: Wait for restart window using Solana validator
+  become: yes                                              # Elevate privileges to another user
+  become_user: "{{ solana_user }}"                         # Run as the Solana user
+  shell: >
+    solana-validator --ledger {{ ledger_path }} \
+    wait-for-restart-window --max-delinquent-stake {{ max_delinquent_stake }}
   environment:
-    PATH: "{{ env_path }}"
-  ignore_errors: True
-  when: wait_for_window and agave is not defined
+    PATH: "{{ env_path }}"                                 # Provide the environment PATH variable
+  ignore_errors: true                                       # Ignore errors during execution
+  when: wait_for_window and agave is not defined            # Run when agave is not defined
   tags:
-    - validator.manage.restart.wait
+    - validator.manage.restart.wait                        # Tag for categorizing restart wait tasks
 
-- name: wait for restarting window
-  become: yes
-  become_user: "{{ solana_user }}"
-  shell: agave-validator --ledger {{ ledger_path }} wait-for-restart-window --max-delinquent-stake {{ max_delinquent_stake }}
+- name: Wait for restart window using Agave validator
+  become: yes                                              # Elevate privileges to another user
+  become_user: "{{ solana_user }}"                         # Run as the Solana user
+  shell: >
+    agave-validator --ledger {{ ledger_path }} \
+    wait-for-restart-window --max-delinquent-stake {{ max_delinquent_stake }}
   environment:
-    PATH: "{{ env_path }}"
-  ignore_errors: True
-  when: wait_for_window and agave is defined and agave
+    PATH: "{{ env_path }}"                                 # Provide the environment PATH variable
+  ignore_errors: true                                       # Ignore errors during execution
+  when: wait_for_window and agave is defined and agave      # Run when agave is defined and true
   tags:
-    - validator.manage.restart.wait
+    - validator.manage.restart.wait                        # Tag for categorizing restart wait tasks
