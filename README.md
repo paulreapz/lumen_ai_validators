@@ -1,5 +1,10 @@
 # Lumen AI Validators Manager
 
+X: https://x.com/lumenvalidators
+Telegram: https://t.me/lumenvalidators
+Website: https://lumenvalidators.ai/
+CA: `LumenDrG2aqqHzh7TTdohoGgyDhQjoJRwj4oLwW5mMx`
+
 ### Automatically bootstrap a Solana validator node, optimize its performance, and connect the node to a monitoring dashboard
 
 [Solana](https://solana.com/) is a fast, secure, and censorship-resistant blockchain providing open infrastructure necessary for global adoption.
