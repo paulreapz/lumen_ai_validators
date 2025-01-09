@@ -1,44 +1,48 @@
-from common import ValidatorConfig
+from common import ValidatorConfig, debug
 import subprocess
 import requests
 import json
-from common import debug
-
 
 def execute_cmd_str(config: ValidatorConfig, cmd: str, convert_to_json: bool, default=None):
     """
-    executes shell command and return string result
-    :param default:
-    :param config:
-    :param convert_to_json:
-    :param cmd: shell command
-    :return: returns string result or None
+    Execute a shell command and return its output.
+
+    Args:
+        config (ValidatorConfig): Validator configuration for debug logging.
+        cmd (str): Command to execute.
+        convert_to_json (bool): Whether to parse the output as JSON.
+        default: Default value to return in case of failure.
+
+    Returns:
+        str or dict: Command output as a string or parsed JSON.
     """
     try:
         debug(config, cmd)
-        result: str = subprocess.check_output(cmd, shell=True, stderr=subprocess.DEVNULL, timeout=10).decode().strip()
+        result = subprocess.check_output(cmd, shell=True, stderr=subprocess.DEVNULL, timeout=10).decode().strip()
 
         if convert_to_json:
             result = json.loads(result)
 
         debug(config, result)
-
         return result
-    except:
+    except Exception as e:
+        debug(config, f"Command failed: {e}")
         return default
-
 
 def rpc_call(config: ValidatorConfig, address: str, method: str, params, error_result, except_result):
     """
-    calls solana rpc (https://docs.solana.com/developing/clients/jsonrpc-api)
-    and returns result or default
-    :param config:
-    :param except_result:
-    :param error_result:
-    :param address: local or remote rpc server address
-    :param method: rpc method
-    :param params: rpc call parameters
-    :return: result or default
+    Perform an RPC call to a Solana node.
+
+    Args:
+        config (ValidatorConfig): Validator configuration for debug logging.
+        address (str): RPC server address.
+        method (str): RPC method to call.
+        params: Parameters for the RPC method.
+        error_result: Default value to return in case of error.
+        except_result: Default value to return in case of exception.
+
+    Returns:
+        dict: RPC call result.
     """
     try:
         json_request = {
@@ -48,24 +52,27 @@ def rpc_call(config: ValidatorConfig, address: str, method: str, params, error_r
             "params": params
         }
         debug(config, json_request)
-        debug(config, address)
-
         json_response = requests.post(address, json=json_request).json()
+
         if 'result' not in json_response:
-            result = error_result
-        else:
-            result = json_response['result']
-    except:
-        result = except_result
-
-    debug(config, result)
-
-    return result
-
+            return error_result
+        return json_response['result']
+    except Exception as e:
+        debug(config, f"RPC call failed: {e}")
+        return except_result
 
 def smart_rpc_call(config: ValidatorConfig, method: str, params, default_result):
     """
-    tries to call local rpc, if it fails tries to call remote rpc
+    Perform an RPC call, trying the local server first and falling back to the remote server.
+
+    Args:
+        config (ValidatorConfig): Validator configuration for debug logging.
+        method (str): RPC method to call.
+        params: Parameters for the RPC method.
+        default_result: Default value to return in case of failure.
+
+    Returns:
+        dict: RPC call result.
     """
     result = rpc_call(config, config.local_rpc_address, method, params, None, None)
 
