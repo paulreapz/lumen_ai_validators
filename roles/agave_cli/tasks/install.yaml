@@ -1,34 +1,31 @@
 ---
-- name: create download dir
+- name: Create directory for Solana installer
   file:
-    path: /tmp/solana
-    state: directory
-    owner: "{{ solana_user }}"
-    group: "{{ solana_user }}"
+    path: /tmp/solana               # Directory to hold the installer
+    state: directory               # Ensure it is a directory
+    owner: "{{ solana_user }}"      # Set ownership to Solana user
+    group: "{{ solana_user }}"      # Set group to Solana user
   tags:
-    - cli.install
+    - cli.install                  # Tag for categorizing tasks
 
-- name: install solana
+- name: Install Solana CLI
   block:
-    - name: download latest solana release installer
+    - name: Download the latest Solana release installer
       get_url:
-        url: "https://release.anza.xyz/v{{ agave_version | default('stable') }}/install"
-        dest: /tmp/solana/
-        mode: 0755
+        url: "https://release.anza.xyz/v{{ agave_version | default('stable') }}/install"  # URL for the installer
+        dest: /tmp/solana/          # Destination path for the installer
+        mode: 0755                 # Make the installer executable
 
-    - name: run solana installer
-      shell: /tmp/solana/install
-  become: yes
-  become_user: "{{ solana_user }}"
+    - name: Run Solana installer
+      shell: /tmp/solana/install    # Execute the installer script
+  become: yes                       # Elevate privileges to run as another user
+  become_user: "{{ solana_user }}"  # Run as the Solana user
   tags:
-    - cli.install
+    - cli.install                  # Tag for categorizing tasks
 
-- name: remove installer
+- name: Clean up installer files
   file:
-    path: /tmp/solana
-    state: absent
+    path: /tmp/solana               # Path to the temporary directory
+    state: absent                  # Ensure the directory is removed
   tags:
-    - cli.install
-
-
-
+    - cli.install                  # Tag for categorizing tasks
