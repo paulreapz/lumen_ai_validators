@@ -3,6 +3,7 @@
 # Playbook to check and verify the existence of validator keypair files.
 
 - name: Build flat keys path
+
   set_fact:
     secrets_local_path: "{{ local_secrets_path }}"
   when: flat_path | bool
@@ -10,6 +11,7 @@
     - check.keys
 
 - name: Build non-flat keys path
+
   set_fact:
     secrets_local_path: "{{ local_secrets_path }}/{{ validator_name }}/solana"
   when: not flat_path | bool
@@ -17,6 +19,7 @@
     - check.keys
 
 - name: Check if validator-keypair exists locally
+
   stat:
     path: "{{ secrets_local_path }}/validator-keypair.json"
   connection: local
