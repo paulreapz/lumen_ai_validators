@@ -6,23 +6,20 @@ all:
         remote:
           hosts:
             server1:
-              ansible_host: <ip address>
-              #any var from group vars:
-              ramdisk_size_gb: <number>
+              ansible_host: <ip address>             # IP address of server1
+              ramdisk_size_gb: <number>             # Size of ramdisk in GB
               validator_description: 'Bootstrapped with https://sv-manager.thevalidators.io'
-              validator_homepage: ''
-              validator_keybase: ''
+              validator_homepage: ''               # Homepage URL (if any)
+              validator_keybase: ''                # Keybase (if any)
             server2:
-              ansible_host: <ip address>
-              #any var from group vars:
-              ramdisk_size_gb: <number>              
+              ansible_host: <ip address>             # IP address of server2
+              ramdisk_size_gb: <number>              # Size of ramdisk in GB
         local:
           hosts:
             localhost:
-              #any var from group vars:
-              validator_name: "<validator name>"
+              validator_name: "<validator name>"       # Name of the validator
             localhost_rpc:
-              ansible_host: localhost
-              force: true
-              rpc_node: true
-              solana_validator_service: started              
+              ansible_host: localhost                  # Localhost configuration
+              force: true                              # Force flag for local actions
+              rpc_node: true                           # Specify if this is an RPC node
+              solana_validator_service: started        # Ensure validator service is started
