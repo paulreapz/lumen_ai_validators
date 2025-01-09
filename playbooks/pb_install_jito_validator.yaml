@@ -1,12 +1,12 @@
 ---
-- name: install solana validator
-  hosts: all
-  become: yes
+- name: Install JITO Solana validator
+  hosts: all                                  # Apply to all hosts
+  become: yes                                # Elevate privileges for task execution
   roles:
-    - check_node
-    - configure_ubuntu
-    - solana_cli
-    - solana_validator_bootstrap
-    - monitoring
+    - check_node                             # Validate the node's readiness
+    - configure_ubuntu                       # Configure the Ubuntu environment
+    - solana_cli                             # Install Solana CLI
+    - solana_validator_bootstrap             # Bootstrap Solana validator
+    - monitoring                             # Set up monitoring tools
   vars:
-    - jito: yes
+    jito: yes                                # Specify that this is a JITO installation
