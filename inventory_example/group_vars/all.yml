@@ -1,61 +1,61 @@
 ---
 
-#backward compatibility
-old_swap_file: "/mnt/swap/swapfile"
-old_ramdisk_path: /mnt/ramdisk
+# Backward compatibility settings
+old_swap_file: "/mnt/swap/swapfile"           # Path to old swap file
+old_ramdisk_path: /mnt/ramdisk                 # Path to old ramdisk
 
-# users:
-solana_user: 'solana'
-ansible_user: 'root'
+# User configuration
+solana_user: 'solana'                          # Solana user
+ansible_user: 'root'                           # Ansible user
 
-#all:
-accounts_path: "{{ ramdisk_path }}/accounts"
-use_firewall: True
-env_path: "{{ solana_home }}/.local/share/solana/install/active_release/bin"
-fail_if_no_validator_keypair: True
-flat_path: True
-incremental_snapshot_interval_slots: 2500
-ledger_path: "{{ mount_base_path }}/ledger"
-local_secrets_path: '../.secrets'
-log_level: "INFO"
-lvm_enabled: False
-lvm_log_volume_size: '25G'
-lvm_vg: 'vg00'
-mount_base_path: '/mnt/solana'
-max_delinquent_stake: 5
-name: "{{ inventory_hostname }}"
-open_solana_ports_start: 8000
-open_solana_ports_end: 10000
-ramdisk_path: "{{ mount_base_path }}/ramdisk"
-ramdisk_size_gb: 200
-rpc_node: False
-set_validator_info: False
-secrets_path: "/home/{{ solana_user }}/.secrets"
-snapshots_path: "{{ mount_base_path }}/snapshots"
-solana_home: "/home/{{ solana_user }}"
-solana_rpc_port: 8899
-swap_file_size_gb: 64
-upload_validator_keys: True
-validator_name: "{{ inventory_hostname }}"
-validator_log_path: "{{ mount_base_path }}/log"
+# General settings
+accounts_path: "{{ ramdisk_path }}/accounts"      # Path to Solana accounts
+use_firewall: True                             # Enable firewall
+env_path: "{{ solana_home }}/.local/share/solana/install/active_release/bin"  # Environment PATH
+fail_if_no_validator_keypair: True            # Fail if validator keypair is missing
+flat_path: True                               # Enable flat path structure
+incremental_snapshot_interval_slots: 2500     # Snapshot interval in slots
+ledger_path: "{{ mount_base_path }}/ledger"       # Path to ledger
+local_secrets_path: '../.secrets'             # Path to local secrets
+log_level: "INFO"                             # Logging level
+lvm_enabled: False                            # Enable LVM
+lvm_log_volume_size: '25G'                    # Size of LVM log volume
+lvm_vg: 'vg00'                                # Logical volume group name
+mount_base_path: '/mnt/solana'                # Base mount path
+max_delinquent_stake: 5                       # Maximum delinquent stake percentage
+name: "{{ inventory_hostname }}"                # Inventory hostname
+open_solana_ports_start: 8000                 # Start of open ports range
+open_solana_ports_end: 10000                  # End of open ports range
+ramdisk_path: "{{ mount_base_path }}/ramdisk"    # Path to ramdisk
+ramdisk_size_gb: 200                          # Size of ramdisk in GB
+rpc_node: False                               # Whether this is an RPC node
+set_validator_info: False                     # Set validator info flag
+secrets_path: "/home/{{ solana_user }}/.secrets"  # Path to secrets
+snapshots_path: "{{ mount_base_path }}/snapshots" # Path to snapshots
+solana_home: "/home/{{ solana_user }}"            # Solana home directory
+solana_rpc_port: 8899                         # Solana RPC port
+swap_file_size_gb: 64                         # Size of swap file in GB
+upload_validator_keys: True                   # Upload validator keys flag
+validator_name: "{{ inventory_hostname }}"        # Validator name
+validator_log_path: "{{ mount_base_path }}/log"    # Path to validator logs
 
-#validator info
-validator_description: "Bootstrapped with https://lumen.thevalidators.io"
-validator_homepage: ""
-keybase_username: ''
+# Validator information
+validator_description: "Bootstrapped with https://lumen.thevalidators.io"  # Description
+validator_homepage: ""                         # Homepage URL (optional)
+keybase_username: ''                           # Keybase username (optional)
 
-#monitoring:
-telegraf_database: v_metrics
-telegraf_urls: http://influx.thevalidators.io:8086
-telegraf_username: v_user
-telegraf_password: thepassword
+# Monitoring configuration
+telegraf_database: v_metrics                  # Telegraf database name
+telegraf_urls: http://influx.thevalidators.io:8086  # Telegraf URLs
+telegraf_username: v_user                     # Telegraf username
+telegraf_password: thepassword                # Telegraf password
 
-# Sys Tuning
+# System tuning parameters
 sysctl_params:
-  - 'net.core.wmem_default=134217728'
-  - 'vm.max_map_count=1000000'
-  - 'net.core.wmem_max=134217728'
-  - 'net.core.rmem_default=134217728'
-  - 'net.core.rmem_max=134217728'
-  - 'fs.nr_open=1000000'
-  - 'vm.swappiness=5'
+  - 'net.core.wmem_default=134217728'         # Default write memory buffer size
+  - 'vm.max_map_count=1000000'                # Maximum number of memory map areas
+  - 'net.core.wmem_max=134217728'             # Maximum write memory buffer size
+  - 'net.core.rmem_default=134217728'         # Default read memory buffer size
+  - 'net.core.rmem_max=134217728'             # Maximum read memory buffer size
+  - 'fs.nr_open=1000000'                      # Maximum number of file descriptors
+  - 'vm.swappiness=5'                         # Swappiness value (reduce swap usage)
