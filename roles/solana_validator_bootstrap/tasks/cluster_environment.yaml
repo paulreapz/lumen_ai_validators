@@ -1,9 +1,9 @@
 ---
-- name: set cluster environment
-  shell: solana config set --url {{ cluster_rpc_address }}
-  become: yes
-  become_user: "{{ solana_user }}"
+- name: Set Solana cluster environment
+  shell: solana config set --url {{ cluster_rpc_address }}  # Set the cluster RPC URL
+  become: yes                                              # Elevate privileges to another user
+  become_user: "{{ solana_user }}"                         # Run as the Solana user
   environment:
-    PATH: "{{ env_path }}"
+    PATH: "{{ env_path }}"                                 # Provide the environment PATH variable
   tags:
-    validator.manage.cluster
+    - validator.manage.cluster                              # Tag for categorizing tasks related to cluster management
