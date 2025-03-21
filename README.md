@@ -1,4 +1,4 @@
-# Terra AI Validators Manager
+# Terra AI
 
 X: https://x.com/Terravalidators
 Telegram: https://t.me/Terravalidators
